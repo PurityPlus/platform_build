@@ -68,16 +68,25 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-TARGET_arm_CFLAGS :=    -O2 \
+TARGET_arm_CFLAGS :=    -O3 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \
                         -funswitch-loops
 
 # Modules can choose to compile some source as thumb.
 TARGET_thumb_CFLAGS :=  -mthumb \
-                        -Os \
+                        -O3 \
                         -fomit-frame-pointer \
-                        -fno-strict-aliasing
+                        -fstrict-aliasing \
+                        -Wstrict-aliasing=2 \
+                        -Werror=strict-aliasing
+
+# Turn off strict-aliasing if we're building an AOSP variant without the
+# patchset...
+ifeq ($(DEBUG_NO_STRICT_ALIASING),yes)
+TARGET_arm_CFLAGS += -fno-strict-aliasing -Wno-error=strict-aliasing
+TARGET_thumb_CFLAGS += -fno-strict-aliasing -Wno-error=strict-aliasing
+endif
 
 # Set FORCE_ARM_DEBUGGING to "true" in your buildspec.mk
 # or in your environment to force a full arm build, even for
@@ -113,7 +122,7 @@ TARGET_GLOBAL_CFLAGS += \
 # We cannot turn it off blindly since the option is not available
 # in gcc-4.4.x.  We also want to disable sincos optimization globally
 # by turning off the builtin sin function.
-ifneq ($(filter 4.6 4.6.% 4.7 4.7.%, $(TARGET_GCC_VERSION)),)
+ifneq ($(filter 4.6 4.6.% 4.7 4.7.% 4.8 4.8.%, $(TARGET_GCC_VERSION)),)
 TARGET_GLOBAL_CFLAGS += -Wno-unused-but-set-variable -fno-builtin-sin \
 			-fno-strict-volatile-bitfields
 endif
@@ -142,13 +151,14 @@ TARGET_GLOBAL_CFLAGS += -mthumb-interwork
 TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 
 # More flags/options can be added here
-TARGET_RELEASE_CFLAGS := \
+TARGET_RELEASE_CFLAGS += \
 			-DNDEBUG \
 			-g \
-			-Wstrict-aliasing=2 \
-			-fgcse-after-reload \
-			-frerun-cse-after-loop \
-			-frename-registers
+                        -Wstrict-aliasing=2 \
+                        -Werror=strict-aliasing \
+                        -fgcse-after-reload \
+                        -frerun-cse-after-loop \
+                        -frename-registers
 
 libc_root := bionic/libc
 libm_root := bionic/libm
