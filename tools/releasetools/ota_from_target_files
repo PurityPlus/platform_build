@@ -456,8 +456,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   #       set up system to update recovery partition on first boot
   #    complete script normally (allow recovery to mark itself finished and reboot)
 
-#  recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
-#
+  recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
                                          OPTIONS.input_tmp, "RECOVERY")
   if OPTIONS.two_step:
     if not OPTIONS.info_dict.get("multistage_support", None):
@@ -488,6 +487,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
 
 
   if OPTIONS.wipe_user_data:
+    script.Print("Formatting /data")
     script.FormatPartition("/data")
 
   script.Print("*********************************************");
@@ -514,7 +514,7 @@ else if get_stage("%(bcb_dev)s", "stage") == "3/3" then
   script.Print("Formatting /system")
   script.FormatPartition("/system")
   script.Mount("/system")
-#  script.UnpackPackageDir("recovery", "/system")
+# script.UnpackPackageDir("recovery", "/system")
   script.Print("Extracting /system")
   script.UnpackPackageDir("system", "/system")
 
