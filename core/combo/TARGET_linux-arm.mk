@@ -75,11 +75,16 @@ TARGET_arm_CFLAGS :=    -O3 \
 
 # Modules can choose to compile some source as thumb.
 TARGET_thumb_CFLAGS :=  -mthumb \
-                        -O3 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing \
                         -Wstrict-aliasing=2 \
                         -Werror=strict-aliasing
+
+ifeq ($(USE_O2_THUMB_FLAG),true)
+TARGET_thumb_CFLAGS +=  -O2
+    else
+TARGET_thumb_CFLAGS +=  -O3
+endif
 
 # A clean way of only disabling a few optimizations that
 # cause problems on devices such as Grouper
